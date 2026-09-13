@@ -1,4 +1,4 @@
-\`timescale 1ns/1ps
+`timescale 1ns/1ps
 module tb_p1_matmul4x4_dualk;
     localparam int EW=16; localparam int AW=40;
     logic clk=0, rst_n=0;
