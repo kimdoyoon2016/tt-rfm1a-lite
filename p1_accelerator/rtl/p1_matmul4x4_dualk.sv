@@ -1,4 +1,4 @@
-\`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 // Throughput-oriented 4x4 signed matrix engine.
 // Two K slices are evaluated per active cycle: 32 MACs/cycle, 2 cycles/tile.
