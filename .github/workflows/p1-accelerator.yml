@@ -1,0 +1,41 @@
+name: P1 accelerator verification
+
+on:
+  push:
+    branches: [p1-accelerator-rev06]
+    paths:
+      - "p1_accelerator/**"
+      - ".github/workflows/p1-accelerator.yml"
+  workflow_dispatch:
+
+jobs:
+  behavioral-simulation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+      - name: Compile dual-K engine
+        run: |
+          iverilog -g2012 -Wall \
+            -s tb_p1_matmul4x4_dualk \
+            -o /tmp/p1_dualk.vvp \
+            p1_accelerator/rtl/p1_matmul4x4_dualk.sv \
+            p1_accelerator/tb/tb_p1_matmul4x4_dualk.sv
+      - name: Run self-checking simulation
+        run: vvp /tmp/p1_dualk.vvp
+
+  verilator-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Verilator
+        run: sudo apt-get update && sudo apt-get install -y verilator
+      - name: Lint and elaborate
+        run: |
+          verilator --lint-only --timing -Wall -Wno-f_DECLFILENAME \
+            -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND -Wno-PROCASSINIT \
+            -Wno-UNUSEDSIGNAL \
+            --top-module tb_p1_matmul4x4_dualk \
+            p1_accelerator/rtl/p1_matmul4x4_dualk.sv \
+            p1_accelerator/tb/tb_p1_matmul4x4_dualk.sv
