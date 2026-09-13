@@ -10,7 +10,7 @@ module p1_flex_mac_array #(parameter int CELLS=160,parameter int ACC_W=32)(
  assign out_valid=cell_out_valid[0];
  generate
   for(g=0;g<CELLS;g=g+1) begin:gen_flex_mac
-   p1_flex_mac #(.ACC_W(ACC_W)) cell(
+   p1_flex_mac #(.ACC_W(ACC_W)) mac_cell(
     .clk,.rst_n,.clear,.mode_int8,.in_valid,.in_ready(cell_in_ready[g]),
     .in_a(in_a[g*32+:32]),.in_b(in_b[g*32+:32]),
     .out_valid(cell_out_valid[g]),.out_ready,
