@@ -22,8 +22,23 @@ jobs:
             -o /tmp/p1_dualk.vvp \
             p1_accelerator/rtl/p1_matmul4x4_dualk.sv \
             p1_accelerator/tb/tb_p1_matmul4x4_dualk.sv
-      - name: Run self-checking simulation
+      - name: Lint and elaborate FlexMAC
+        run: |
+          verilator --lint-only --timing -Wall -Wno-fatal \
+            --top-module tb_p1_flex_mac \
+            p1_accelerator/rtl/p1_flex_mac.sv \
+            p1_accelerator/tb/tb_p1_flex_mac.sv
+      - name: Run dual-K self-checking simulation
         run: vvp /tmp/p1_dualk.vvp
+      - name: Compile FlexMAC
+        run: |
+          iverilog -g2012 -Wall \
+            -s tb_p1_flex_mac \
+            -o /tmp/p1_flex_mac.vvp \
+            p1_accelerator/rtl/p1_flex_mac.sv \
+            p1_accelerator/tb/tb_p1_flex_mac.sv
+      - name: Run FlexMAC self-checking simulation
+        run: vvp /tmp/p1_flex_mac.vvp
 
   verilator-lint:
     runs-on: ubuntu-latest
