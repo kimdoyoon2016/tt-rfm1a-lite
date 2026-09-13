@@ -27,6 +27,13 @@ jobs:
             p1_accelerator/rtl/p1_flex_mac.sv \
             p1_accelerator/tb/tb_p1_flex_mac.sv
           vvp /tmp/p1_flex_mac.vvp
+      - name: Compile and run FlexMAC array
+        run: |
+          iverilog -g2012 -Wall -s tb_p1_flex_mac_array -o /tmp/p1_flex_array.vvp \
+            p1_accelerator/rtl/p1_flex_mac.sv \
+            p1_accelerator/rtl/p1_flex_mac_array.sv \
+            p1_accelerator/tb/tb_p1_flex_mac_array.sv
+          vvp /tmp/p1_flex_array.vvp
 
   verilator-lint:
     runs-on: ubuntu-latest
@@ -46,3 +53,16 @@ jobs:
             --top-module tb_p1_flex_mac \
             p1_accelerator/rtl/p1_flex_mac.sv \
             p1_accelerator/tb/tb_p1_flex_mac.sv
+      - name: Elaborate default 160-cell array
+        run: |
+          verilator --lint-only -Wall -Wno-fatal \
+            --top-module p1_flex_mac_array \
+            p1_accelerator/rtl/p1_flex_mac.sv \
+            p1_accelerator/rtl/p1_flex_mac_array.sv
+      - name: Lint array self-test
+        run: |
+          verilator --lint-only --timing -Wall -Wno-fatal \
+            --top-module tb_p1_flex_mac_array \
+            p1_accelerator/rtl/p1_flex_mac.sv \
+            p1_accelerator/rtl/p1_flex_mac_array.sv \
+            p1_accelerator/tb/tb_p1_flex_mac_array.sv
