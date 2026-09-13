@@ -33,9 +33,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y verilator
       - name: Lint and elaborate
         run: |
-          verilator --lint-only --timing -Wall -Wno-DECLFILENAME \
-            -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND -Wno-PROCASSINIT \
-            -Wno-UNUSEDSIGNAL \
+          verilator --lint-only --timing -Wall -Wno-fatal \
             --top-module tb_p1_matmul4x4_dualk \
             p1_accelerator/rtl/p1_matmul4x4_dualk.sv \
             p1_accelerator/tb/tb_p1_matmul4x4_dualk.sv
