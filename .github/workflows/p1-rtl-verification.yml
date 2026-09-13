@@ -1,0 +1,71 @@
+name: RTL Verification
+
+on:
+  push:
+    paths:
+      - "p1-accelerator/rtl/**"
+      - "p1-accelerator/tb/**"
+      - "p1-accelerator/run_all_tests.sh"
+      - ".github/workflows/rtl-verification.yml"
+  pull_request:
+    paths:
+      - "p1-accelerator/rtl/**"
+      - "p1-accelerator/tb/**"
+      - "p1-accelerator/run_all_tests.sh"
+      - ".github/workflows/rtl-verification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rtl-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  behavioral-simulation:
+    name: Icarus behavioral simulation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out RTL
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends iverilog
+          iverilog -V
+
+      - name: Run all self-checking testbenches
+        working-directory: p1-accelerator
+        run: bash ./run_all_tests.sh
+
+  verilator-lint:
+    name: Verilator lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out RTL
+        uses: actions/checkout@v4
+
+      - name: Install Verilator
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends verilator
+          verilator --version
+
+      - name: Lint every testbench top
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd p1-accelerator
+          for test_file in tb/tb_*.sv; do
+            top="$(basename "$test_file" .sv)"
+            echo "Linting $top"
+            verilator --lint-only --timing -Wno-fatal \
+              --top-module "$top" rtl/*.sv "$test_file"
+          done
+
