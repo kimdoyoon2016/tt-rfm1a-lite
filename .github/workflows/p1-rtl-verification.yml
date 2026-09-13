@@ -6,13 +6,13 @@ on:
       - "p1-accelerator/rtl/**"
       - "p1-accelerator/tb/**"
       - "p1-accelerator/run_all_tests.sh"
-      - ".github/workflows/rtl-verification.yml"
+      - ".github/workflows/p1-rtl-verification.yml"
   pull_request:
     paths:
       - "p1-accelerator/rtl/**"
       - "p1-accelerator/tb/**"
       - "p1-accelerator/run_all_tests.sh"
-      - ".github/workflows/rtl-verification.yml"
+      - ".github/workflows/p1-rtl-verification.yml"
   workflow_dispatch:
 
 permissions:
