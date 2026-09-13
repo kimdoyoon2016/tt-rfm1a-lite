@@ -15,30 +15,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Icarus Verilog
         run: sudo apt-get update && sudo apt-get install -y iverilog
-      - name: Compile dual-K engine
+      - name: Compile and run dual-K engine
         run: |
-          iverilog -g2012 -Wall \
-            -s tb_p1_matmul4x4_dualk \
-            -o /tmp/p1_dualk.vvp \
+          iverilog -g2012 -Wall -s tb_p1_matmul4x4_dualk -o /tmp/p1_dualk.vvp \
             p1_accelerator/rtl/p1_matmul4x4_dualk.sv \
             p1_accelerator/tb/tb_p1_matmul4x4_dualk.sv
-      - name: Lint and elaborate FlexMAC
+          vvp /tmp/p1_dualk.vvp
+      - name: Compile and run FlexMAC
         run: |
-          verilator --lint-only --timing -Wall -Wno-fatal \
-            --top-module tb_p1_flex_mac \
+          iverilog -g2012 -Wall -s tb_p1_flex_mac -o /tmp/p1_flex_mac.vvp \
             p1_accelerator/rtl/p1_flex_mac.sv \
             p1_accelerator/tb/tb_p1_flex_mac.sv
-      - name: Run dual-K self-checking simulation
-        run: vvp /tmp/p1_dualk.vvp
-      - name: Compile FlexMAC
-        run: |
-          iverilog -g2012 -Wall \
-            -s tb_p1_flex_mac \
-            -o /tmp/p1_flex_mac.vvp \
-            p1_accelerator/rtl/p1_flex_mac.sv \
-            p1_accelerator/tb/tb_p1_flex_mac.sv
-      - name: Run FlexMAC self-checking simulation
-        run: vvp /tmp/p1_flex_mac.vvp
+          vvp /tmp/p1_flex_mac.vvp
 
   verilator-lint:
     runs-on: ubuntu-latest
@@ -46,9 +34,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Verilator
         run: sudo apt-get update && sudo apt-get install -y verilator
-      - name: Lint and elaborate
+      - name: Lint dual-K engine
         run: |
           verilator --lint-only --timing -Wall -Wno-fatal \
             --top-module tb_p1_matmul4x4_dualk \
             p1_accelerator/rtl/p1_matmul4x4_dualk.sv \
             p1_accelerator/tb/tb_p1_matmul4x4_dualk.sv
+      - name: Lint FlexMAC
+        run: |
+          verilator --lint-only --timing -Wall -Wno-fatal \
+            --top-module tb_p1_flex_mac \
+            p1_accelerator/rtl/p1_flex_mac.sv \
+            p1_accelerator/tb/tb_p1_flex_mac.sv
